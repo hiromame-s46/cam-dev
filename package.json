@@ -9,7 +9,7 @@
     "dev": "vite --config vite.pages.config.ts",
     "build": "vite build --config vite.pages.config.ts",
     "preview": "vite preview --config vite.pages.config.ts",
-    "test": "npm run build && node --test tests/pages-build.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

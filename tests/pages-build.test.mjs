@@ -22,7 +22,8 @@ test("ships the scanner UI and local-only processing code", async () => {
   const script = await readFile(new URL(`assets/${scriptName}`, outputRoot), "utf8");
 
   assert.match(script, /Boardly/);
-  assert.match(script, /application\/pdf/);
   assert.match(script, /boardly-note\.png/);
+  assert.match(script, /黒板の範囲/);
+  assert.match(script, /application\/pdf/);
   assert.match(script, /boardly-note\.pdf/);
 });

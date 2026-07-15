@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { detectBoardFromImageData } from "./board-detection.mjs";
 
 type Point = { x: number; y: number };
 type ViewMode = "crop" | "result";
@@ -26,7 +27,7 @@ const clamp = (value: number, min = 0, max = 1) =>
 const pointDistance = (a: Point, b: Point, width: number, height: number) =>
   Math.hypot((a.x - b.x) * width, (a.y - b.y) * height);
 
-function detectBoard(image: HTMLImageElement) {
+function detectBoardLegacy(image: HTMLImageElement) {
   const sampleWidth = Math.min(360, image.naturalWidth);
   const sampleHeight = Math.max(
     1,
@@ -143,6 +144,30 @@ function detectBoard(image: HTMLImageElement) {
   }));
 
   return { corners, confident: coverage > 0.13 };
+}
+
+function detectBoard(image: HTMLImageElement) {
+  const scale = Math.min(1, 560 / Math.max(image.naturalWidth, image.naturalHeight));
+  const sampleWidth = Math.max(12, Math.round(image.naturalWidth * scale));
+  const sampleHeight = Math.max(12, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = sampleWidth;
+  canvas.height = sampleHeight;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return { corners: DEFAULT_CORNERS, confident: false, score: 0 };
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+  const pixels = context.getImageData(0, 0, sampleWidth, sampleHeight);
+  const detection = detectBoardFromImageData(pixels.data, sampleWidth, sampleHeight);
+  if (detection.confident || detection.score >= 0.35) return detection;
+
+  // Keep the former detector as a conservative, editable fallback for unusual
+  // photos. It never bypasses the manual confirmation screen.
+  const fallback = detectBoardLegacy(image);
+  return fallback.confident
+    ? { corners: fallback.corners, confident: false, score: detection.score }
+    : detection;
 }
 
 function warpBoard(image: HTMLImageElement, corners: Point[]) {
