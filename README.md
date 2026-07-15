@@ -11,6 +11,12 @@
 - 写真を外部サーバーへ送信しないローカル処理
 - スマートフォンのカメラ入力とドラッグ＆ドロップに対応
 
+## 公開URL
+
+https://hiromame-s46.github.io/cam-dev/
+
+`main` ブランチへプッシュすると、GitHub Actionsが静的サイトをビルドしてGitHub Pagesへ自動公開します。
+
 ## 開発
 
 Node.js 22.13.0以降を使用してください。

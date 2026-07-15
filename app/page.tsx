@@ -228,9 +228,9 @@ function warpBoard(image: HTMLImageElement, corners: Point[]) {
   return outputCanvas;
 }
 
-function concatBytes(parts: Uint8Array[]) {
+function concatBytes(parts: Uint8Array<ArrayBufferLike>[]): Uint8Array<ArrayBuffer> {
   const total = parts.reduce((sum, part) => sum + part.length, 0);
-  const output = new Uint8Array(total);
+  const output: Uint8Array<ArrayBuffer> = new Uint8Array(total);
   let offset = 0;
   for (const part of parts) {
     output.set(part, offset);
@@ -293,7 +293,8 @@ function makePdf(jpeg: Uint8Array, imageWidth: number, imageHeight: number) {
     "%%EOF",
   );
   parts.push(encoder.encode(`${xref.join("\n")}\n`));
-  return new Blob(parts, { type: "application/pdf" });
+  const documentBytes = concatBytes(parts);
+  return new Blob([documentBytes.buffer], { type: "application/pdf" });
 }
 
 function downloadBlob(blob: Blob, fileName: string) {
